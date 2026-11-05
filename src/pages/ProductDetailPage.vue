@@ -79,7 +79,7 @@
               <q-space /><q-btn
                 flat
                 round
-                color="primary"
+                color="positive"
                 icon="chat"
                 aria-label="Contactar"
                 :href="`https://wa.me/503${product.phone.replaceAll('-', '')}`"
@@ -143,14 +143,21 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
-import { addToCart as addItemToCart, getProduct } from '@/stores/products'
+import { addToCart as addItemToCart, getProduct, loadProducts } from '@/stores/products'
 
 const route = useRoute()
 const $q = useQuasar()
 const product = computed(() => getProduct(route.params.id))
+onMounted(() => {
+  if (!product.value) {
+    loadProducts().catch((error) => {
+      console.error('No se pudieron cargar los anuncios de Firebase:', error)
+    })
+  }
+})
 const activeIndex = ref(0)
 const images = computed(() =>
   product.value

@@ -1,6 +1,6 @@
 <template>
   <q-page class="page-wrap q-px-md q-px-lg-xl q-py-lg">
-    <section class="hero-panel q-pa-lg q-pa-md-xl q-mb-lg">
+    <!-- <section class="hero-panel q-pa-lg q-pa-md-xl q-mb-lg">
       <div class="row items-center">
         <div class="col-12 col-md-7">
           <q-badge color="dark" text-color="white" rounded class="q-mb-md q-px-sm q-py-xs"
@@ -26,19 +26,14 @@
           />
         </div>
         <div class="col-12 col-md-5 gt-sm hero-art">
-          <div class="hero-orbit orbit-one"></div>
-          <div class="hero-orbit orbit-two"></div>
-          <q-icon name="smartphone" class="hero-phone" />
+          <q-icon name="android" class="hero-phone" />
         </div>
       </div>
-    </section>
+    </section> -->
 
     <div id="catalog" class="row items-center q-mb-md">
       <div class="col">
         <div class="text-h5 text-weight-bold">Celulares disponibles</div>
-        <div class="text-caption text-grey-7">
-          {{ filteredProducts.length }} anuncios encontrados
-        </div>
       </div>
       <q-btn
         outline
@@ -262,14 +257,26 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { products } from '@/stores/products'
+import { loadProducts, products } from '@/stores/products'
 import { useQuasar } from 'quasar'
 
 const route = useRoute()
 const router = useRouter()
 const $q = useQuasar()
+onMounted(async () => {
+  try {
+    await loadProducts()
+  } catch (error) {
+    console.error('No se pudieron cargar los anuncios de Firebase:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'No se pudieron actualizar los anuncios',
+      caption: 'Se muestran los anuncios de ejemplo.',
+    })
+  }
+})
 const filtersOpen = ref(false)
 const filters = reactive({ condition: [], brand: [], system: [], maxPrice: 1000 })
 const sortBy = ref('newest')
@@ -337,9 +344,9 @@ function favorite(title) {
     position: 'top',
   })
 }
-function scrollToCatalog() {
-  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })
-}
+//function scrollToCatalog() {
+//  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })
+//}
 </script>
 
 <style lang="scss" scoped>

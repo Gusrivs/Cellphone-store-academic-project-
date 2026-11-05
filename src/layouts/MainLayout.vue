@@ -12,8 +12,8 @@
           @click="drawerOpen = !drawerOpen"
         />
         <router-link to="/" class="brand-link row items-center no-wrap">
-          <q-avatar rounded color="primary" text-color="dark" icon="smartphone" size="42px" />
-          <span class="q-ml-sm text-h6 text-weight-bolder brand-name">CellPhone</span>
+          <q-avatar rounded color="primary" text-color="dark" icon="handshake" size="50px" />
+          <span class="q-ml-sm text-h6 text-weight-bolder brand-name">eBay rt24007</span>
         </router-link>
         <q-input
           v-model="search"
@@ -21,7 +21,7 @@
           outlined
           rounded
           clearable
-          placeholder="Buscar celulares..."
+          placeholder="Que buscaba joven..."
           class="header-search q-ml-lg gt-sm"
           @update:model-value="updateSearch"
         >
@@ -96,17 +96,19 @@
 
     <q-dialog v-model="cartOpen" position="right">
       <q-card class="cart-card"
-        ><q-card-section class="row items-center"
-          ><div class="text-h6">Mi carrito</div>
-          <q-space /><q-btn flat round dense icon="close" v-close-popup
+        ><q-card-section class="row items-center">
+          <div class="text-h6">Mi carrito</div>
+          <q-space />
+          <q-btn flat round dense icon="close" v-close-popup
         /></q-card-section>
         <q-separator />
-        <q-card-section v-if="cartCount" class="text-body2"
-          >Tienes {{ cartCount }} {{ cartCount === 1 ? 'celular' : 'celulares' }} en tu carrito.
+        <q-card-section v-if="cartCount" class="text-body2">
+          Tienes {{ cartCount }} {{ cartCount === 1 ? 'celular' : 'celulares' }} en tu carrito.
           <div class="text-caption text-grey-7 q-mt-sm">
-            La compra es una demostración; contacta directamente al vendedor para coordinar.
-          </div></q-card-section
-        >
+            <!-- Boton para vaciar carrito -->
+            <q-btn flat color="positive" label="Comprar" @click="comprar" />
+          </div>
+        </q-card-section>
         <q-card-section v-else class="text-center text-grey-7 q-py-xl"
           ><q-icon name="shopping_cart" size="40px" class="q-mb-sm" />
           <div>Tu carrito está vacío</div></q-card-section
@@ -120,7 +122,9 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { cart } from '@/stores/products'
+import { useQuasar } from 'quasar'
 
+const $q = useQuasar()
 const route = useRoute()
 const router = useRouter()
 const drawerOpen = ref(false)
@@ -142,6 +146,17 @@ function updateSearch(value) {
     else delete query.q
     router.replace({ query })
   }, 250)
+}
+
+function comprar() {
+  cart.value = []
+
+  $q.notify({
+    type: 'negative',
+    message: '¡Felicidades, usted ha sido estafado!',
+    position: 'top-right',
+    timeout: 3000,
+  })
 }
 </script>
 

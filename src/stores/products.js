@@ -1,4 +1,8 @@
 import { ref, watch } from 'vue'
+import { addDoc, collection, getDocs } from 'firebase/firestore'
+import { db } from '@/firebaseConfig'
+
+const announcementsCollection = collection(db, 'announcements')
 
 const seedProducts = [
   {
@@ -169,17 +173,45 @@ function readSaved(key, fallback) {
   }
 }
 
-export const products = ref(readSaved('cellphone-products-v1', seedProducts))
+export const products = ref(seedProducts)
 export const cart = ref(readSaved('cellphone-cart-v1', []))
-watch(products, (value) => localStorage.setItem('cellphone-products-v1', JSON.stringify(value)), {
-  deep: true,
-})
 watch(cart, (value) => localStorage.setItem('cellphone-cart-v1', JSON.stringify(value)), {
   deep: true,
 })
 
-export function addProduct(product) {
-  products.value.unshift(product)
+function fromFirestore(document) {
+  const data = document.data()
+  return {
+    ...data,
+    id: document.id,
+    image:
+      data.image ||
+      'https://images.unsplash.com/photo-1511707445398-1eeda22e6b1b?auto=format&fit=crop&w=900&q=85',
+    images: [],
+  }
+}
+
+export async function loadProducts() {
+  const snapshot = await getDocs(announcementsCollection)
+  const savedProducts = snapshot.docs.map(fromFirestore)
+  products.value = [...savedProducts, ...seedProducts]
+  return savedProducts
+}
+
+export async function addProduct(product) {
+  const announcement = Object.fromEntries(
+    Object.entries(product).filter(([key]) => !['id', 'image', 'images'].includes(key)),
+  )
+  const document = await addDoc(announcementsCollection, announcement)
+  const savedProduct = {
+    ...announcement,
+    id: document.id,
+    image:
+      'https://images.unsplash.com/photo-1511707445398-1eeda22e6b1b?auto=format&fit=crop&w=900&q=85',
+    images: [],
+  }
+  products.value.unshift(savedProduct)
+  return savedProduct
 }
 export function addToCart(productId) {
   cart.value.push(productId)

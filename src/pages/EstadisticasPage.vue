@@ -90,8 +90,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { products } from '@/stores/products'
+import { computed, onMounted } from 'vue'
+import { loadProducts, products } from '@/stores/products'
+
+onMounted(() => {
+  loadProducts().catch((error) => {
+    console.error('No se pudieron cargar los anuncios de Firebase:', error)
+  })
+})
 
 const summary = computed(() => [
   {

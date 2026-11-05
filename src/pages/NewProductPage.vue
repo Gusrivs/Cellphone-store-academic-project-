@@ -120,7 +120,8 @@
           ><q-card-section
             ><div class="text-h6 text-weight-bold">Fotos del celular</div>
             <div class="text-caption text-grey-7">
-              Agrega hasta 4 fotos para mostrar el estado real del equipo.
+              Puedes preparar hasta 4 fotos. El guardado de imágenes se conectará en el siguiente
+              paso.
             </div></q-card-section
           ><q-separator /><q-card-section>
             <q-file
@@ -195,8 +196,8 @@
             ></q-input>
             <q-separator spaced />
             <div class="row items-center text-caption text-grey-7">
-              <q-icon name="verified_user" color="positive" size="18px" class="q-mr-sm" />Tu
-              información se guarda en este dispositivo.
+              <q-icon name="verified_user" color="positive" size="18px" class="q-mr-sm" />La
+              información del anuncio se guarda en Firebase.
             </div>
             <div class="column q-gutter-sm q-mt-md">
               <q-btn
@@ -268,47 +269,54 @@ function removeImage(index) {
   previews.value.splice(index, 1)
   files.value.splice(index, 1)
 }
-function fileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
 async function submitForm() {
   const valid = await formRef.value.validate()
   if (!valid) return
   saving.value = true
   try {
-    const images = await Promise.all((files.value || []).map(fileAsDataUrl))
-    addProduct({
+    await addProduct({
       ...form,
-      id: `phone-${Date.now()}`,
-      image:
-        images[0] ||
-        'https://images.unsplash.com/photo-1511707445398-1eeda22e6b1b?auto=format&fit=crop&w=900&q=85',
-      images,
       price: Number(form.price),
       screen: Number(form.screen),
       storage: Number(form.storage),
       ram: Number(form.ram),
       createdAt: new Date().toISOString().slice(0, 10),
     })
+    previews.value.forEach((preview) => URL.revokeObjectURL(preview))
+    previews.value = []
+    files.value = []
+    Object.assign(form, {
+      title: '',
+      brand: null,
+      model: '',
+      system: null,
+      screen: null,
+      storage: null,
+      ram: null,
+      color: '',
+      condition: 'Usado',
+      description: '',
+      price: null,
+      seller: '',
+      phone: '',
+    })
+    formRef.value.resetValidation()
     $q.notify({
       type: 'positive',
-      message: 'Tu anuncio se publicó correctamente',
+      message: 'Tu anuncio se creó correctamente',
       caption: 'Ya aparece en el catálogo.',
       icon: 'check_circle',
+      color: 'positive',
       timeout: 2200,
       position: 'top',
     })
-    router.push('/')
-  } catch {
+    await router.push('/')
+  } catch (error) {
+    console.error('No se pudo guardar el anuncio en Firebase:', error)
     $q.notify({
       type: 'negative',
       message: 'No se pudo guardar el anuncio',
-      caption: 'Intenta con imágenes más pequeñas o vuelve a intentarlo.',
+      caption: 'Revisa tu conexión e inténtalo de nuevo.',
       position: 'top',
     })
   } finally {
