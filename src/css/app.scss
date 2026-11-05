@@ -1,1 +1,9 @@
-// app global css
+body {
+  background: $dark-page;
+  color: $dark;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}

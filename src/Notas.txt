@@ -1,0 +1,11 @@
+Para subir imagenes a concha db no subiremos el documento completooo solo el id y el attachment 
+
+Se recomienda manejar la data en un lugar y los adjuntos en otros para optimizar la velocidad de acceso y busqueda en memoria, 
+
+const imagenesssrc = ref([]) //array de imagenes para mosrtrar en la pagina
+
+const documentoAttach=ref(null) //documento de couchdb con los attachments
+
+lo que hacemos es obtener la url de la imagen conformada por el dominio de la pagina /imagenesfpi/idimagen/nombreimagen (ese es el src que metemos a img)
+
+vaya hpt termina el proyecto porque vas atrasadisisisisisimo XDDD 
