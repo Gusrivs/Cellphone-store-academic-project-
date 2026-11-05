@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@quasar/extras": "^2.1.0",
-    "axios": "^1.20.0",
+    "axios": "^1.21.0",
+    "firebase": "^12.11.0",
     "quasar": "^2.33.1",
     "vue": "^3.5.22",
     "vue-router": "^5.0.6"

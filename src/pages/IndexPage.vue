@@ -4,14 +4,14 @@
       <div class="row items-center">
         <div class="col-12 col-md-7">
           <q-badge color="dark" text-color="white" rounded class="q-mb-md q-px-sm q-py-xs"
-            >COMPRA Y VENDE CON CONFIANZA</q-badge
+            >mercado ues</q-badge
           >
           <div class="text-h3 text-weight-bolder hero-title">
-            Tu próximo celular<br class="gt-xs" />
-            está aquí.
+            Bienvenido viajero,<br class="gt-xs" />
+            ¿Busca celular?
           </div>
           <div class="text-subtitle1 q-mt-md text-grey-8">
-            Encuentra buenas opciones cerca de ti o publica tu anuncio gratis.
+            El que busca encuentra, dele con confianza, tambien puede vender!
           </div>
           <q-btn
             unelevated
