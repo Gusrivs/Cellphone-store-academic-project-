@@ -173,7 +173,11 @@
               prefix="$"
               min="1"
               step="0.01"
-              :rules="[required, positive]"
+              :rules="[
+                required,
+                positive,
+                (v) => v <= 1500 || 'Ingresa un valor menor o igual a 1,500',
+              ]"
             />
             <q-input
               v-model="form.seller"

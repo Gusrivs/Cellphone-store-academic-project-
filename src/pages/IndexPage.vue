@@ -90,14 +90,14 @@
             <q-slider
               v-model="filters.maxPrice"
               :min="50"
-              :max="1000"
+              :max="1500"
               :step="10"
               label
               color="primary"
               :label-value="`$${filters.maxPrice}`"
             />
             <div class="row justify-between text-caption text-grey-7">
-              <span>$50</span><span>$1,000+</span>
+              <span>$50</span><span>$1,500</span>
             </div>
           </q-card-section></q-card
         >
@@ -230,7 +230,7 @@
           <q-slider
             v-model="filters.maxPrice"
             :min="50"
-            :max="1000"
+            :max="1500"
             :step="10"
             label
             color="primary"
@@ -278,7 +278,7 @@ onMounted(async () => {
   }
 })
 const filtersOpen = ref(false)
-const filters = reactive({ condition: [], brand: [], system: [], maxPrice: 1000 })
+const filters = reactive({ condition: [], brand: [], system: [], maxPrice: 1500 })
 const sortBy = ref('newest')
 const perPage = ref(8)
 const currentPage = ref(1)
@@ -289,7 +289,7 @@ const brandOptions = ['Samsung', 'Apple', 'Xiaomi', 'Huawei', 'Motorola', 'Nokia
 }))
 const systemOptions = ['Android', 'iOS', 'HarmonyOS'].map((label) => ({ label, value: label }))
 const sortOptions = [
-  { label: 'Más recientes', value: 'newest' },
+  { label: 'Fecha', value: 'newest' },
   { label: 'Menor precio', value: 'price-asc' },
   { label: 'Mayor precio', value: 'price-desc' },
 ]
@@ -331,7 +331,7 @@ function resetFilters() {
   filters.condition = []
   filters.brand = []
   filters.system = []
-  filters.maxPrice = 1000
+  filters.maxPrice = 1500
 }
 function openProduct(id) {
   router.push(`/producto/${id}`)
