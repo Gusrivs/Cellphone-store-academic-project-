@@ -388,14 +388,14 @@ async function submitForm() {
   if (!valid) return
   saving.value = true
   try {
-    await addProduct({
+    const result = await addProduct({
       ...form,
       price: Number(form.price),
       screen: Number(form.screen),
       storage: Number(form.storage),
       ram: Number(form.ram),
       createdAt: new Date().toISOString().slice(0, 10),
-    })
+    }, files.value)
     previews.value.forEach((preview) => URL.revokeObjectURL(preview))
     previews.value = []
     activePhoto.value = 0
@@ -417,15 +417,25 @@ async function submitForm() {
       phone: '',
     })
     formRef.value.resetValidation()
-    $q.notify({
-      type: 'positive',
-      message: 'Tu anuncio se creó correctamente',
-      caption: 'Ya aparece en el catálogo.',
-      icon: 'check_circle',
-      color: 'positive',
-      timeout: 2200,
-      position: 'top',
-    })
+    $q.notify(
+      result.photoError
+        ? {
+            type: 'warning',
+            message: 'El anuncio se guardó, pero algunas fotos no se subieron',
+            caption: `${result.uploadedCount} de ${result.totalFiles} fotos disponibles. Puedes corregir las fotos después.`,
+            position: 'top',
+            timeout: 5000,
+          }
+        : {
+            type: 'positive',
+            message: 'Tu anuncio se creó correctamente',
+            caption: 'Ya aparece en el catálogo.',
+            icon: 'check_circle',
+            color: 'positive',
+            timeout: 2200,
+            position: 'top',
+          },
+    )
     await router.push('/')
   } catch (error) {
     console.error('No se pudo guardar el anuncio en Firebase:', error)
