@@ -83,12 +83,11 @@
             ><q-item-section>Nuevo anuncio</q-item-section></q-item
           >
           <q-item clickable v-ripple to="/estadisticas" active-class="nav-active"
-            ><q-item-section avatar><q-icon name="insights" /></q-item-section
+            ><q-item-section avatar><q-icon name="query_stats" /></q-item-section
             ><q-item-section>Estadísticas</q-item-section></q-item
           >
         </q-list>
         <q-separator spaced />
-        <div class="text-caption text-grey-7">Compra y vende celulares con confianza.</div>
       </div>
     </q-drawer>
 

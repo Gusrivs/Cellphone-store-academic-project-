@@ -118,9 +118,6 @@
               <div class="text-body1 text-grey-8 q-mt-sm description-text">
                 {{ product.description }}
               </div></q-card-section
-            ><q-separator /><q-card-section class="row items-center text-caption text-grey-7"
-              ><q-icon name="schedule" class="q-mr-xs" />Publicado el {{ product.createdAt
-              }}<q-space /><q-icon name="place" class="q-mr-xs" />El Salvador</q-card-section
             ></q-card
           >
         </div>

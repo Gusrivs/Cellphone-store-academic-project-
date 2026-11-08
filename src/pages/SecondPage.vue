@@ -8,6 +8,22 @@ import { api } from '../boot/axios'
 const $q = useQuasar()
 
 const filesImages = ref(null)
+const couchStatus = ref('')
+
+async function probarCouchDB() {
+  couchStatus.value = 'Conectando…'
+
+  try {
+    const response = await api.get('/')
+    couchStatus.value = `Conexión correcta: HTTP ${response.status}`
+  } catch (error) {
+    const status = error.response?.status
+    couchStatus.value = status
+      ? `CouchDB respondió HTTP ${status}`
+      : 'No se pudo conectar. Revisa la consola y la pestaña Network del navegador.'
+    console.error('Prueba GET CouchDB falló:', status || error.code || error.message)
+  }
+}
 
 function onRejected(rejectedEntries) {
   $q.notify({
@@ -65,50 +81,28 @@ async function setImagen() {
     return
   }
 
-  let coleccionCouchDB = '/imagenesfpi/'
-  let idDocumento = anuncio.value[0].id // usamos el primer anuncio
+  const coleccionCouchDB = '/imagenesfpi/'
+  const idDocumento = anuncio.value[0].id // usamos el primer anuncio
   console.log('Colección CouchDB:', idDocumento)
-  let rev = null
+  let currentRev
 
   for (let i = 0; i < filesImages.value.length; i++) {
     const file = filesImages.value[i]
     console.log(`Subiendo imagen ${i + 1}:`, file.name)
-    let attname = 'archivo' + i + '.jpg' // nombre del attachment
-    //subo la imagen a couchDB como attachement del documento idDocumento
-    //hare peticion con await
+    const attname = `archivo${i}.jpg`
+    const url = `${coleccionCouchDB}${encodeURIComponent(idDocumento)}/${encodeURIComponent(attname)}`
 
-    if (i === 0) {
-      let response = await api.put(
-        `${api.baseURL}${coleccionCouchDB}${idDocumento}/${attname}`,
-        file,
-        {
-          headers: {
-            'Content-Type': file.type,
-          },
+    try {
+      const response = await api.put(currentRev ? `${url}?rev=${encodeURIComponent(currentRev)}` : url, file, {
+        headers: {
+          'Content-Type': file.type,
         },
-      )
-      if (response.status === 201) {
-        rev = response.data.rev
-        console.log(`Imagen ${i + 1} subida con éxito. Nueva revisión:`, rev)
-      } else {
-        console.error(`Error al subir la imagen ${i + 1}:`, response.statusText)
-      }
-    } else {
-      let response = await api.put(
-        `${api.baseURL}${coleccionCouchDB}${idDocumento}/${attname}?rev=${rev}`,
-        file,
-        {
-          headers: {
-            'Content-Type': file.type,
-          },
-        },
-      )
-      if (response.status === 201) {
-        rev = response.data.rev
-        console.log(`Imagen ${i + 1} subida con éxito. Nueva revisión:`, rev)
-      } else {
-        console.error(`Error al subir la imagen ${i + 1}:`, response.statusText)
-      }
+      })
+      currentRev = response.data.rev
+      console.log(`Imagen ${i + 1} subida con éxito. Nueva revisión:`, currentRev)
+    } catch (error) {
+      console.error(`Fallo al subir la imagen ${i + 1}:`, error.response?.data || error.message)
+      break
     }
   } //FIN DEL FOR (espero este bien
 }
@@ -148,6 +142,8 @@ async function setImagen() {
       />
       <br />
       <q-btn @click="setImagen" variant="primary">Subir Imagenes</q-btn>
+      <q-btn class="q-ml-sm" @click="probarCouchDB" color="info" label="Probar conexión CouchDB" />
+      <div v-if="couchStatus" class="q-mt-sm" role="status">{{ couchStatus }}</div>
       <q-btn @click="getImagen" variant="success">Obtener Imagenes</q-btn>
       <br />
       <span>Que mas querias bro?</span>

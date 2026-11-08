@@ -11,10 +11,7 @@
       <div class="col-12 col-lg-7">
         <q-card flat bordered class="form-card"
           ><q-card-section
-            ><div class="text-h6 text-weight-bold">Información del equipo</div>
-            <div class="text-caption text-grey-7">
-              Cuéntales a los compradores lo esencial.
-            </div></q-card-section
+            ><div class="text-h6 text-weight-bold">Información del equipo</div> </q-card-section
           ><q-separator /><q-card-section class="q-gutter-y-md">
             <q-input
               v-model="form.title"
@@ -125,7 +122,7 @@
             </div></q-card-section
           ><q-separator /><q-card-section>
             <q-file
-              v-model="files"
+              v-model="pickerFiles"
               outlined
               multiple
               use-chips
@@ -135,23 +132,100 @@
               max-total-size="2000000"
               label="Seleccionar fotos"
               hint="JPG o PNG. Máximo 4 imágenes y 500 KB por foto."
-              @update:model-value="updatePreviews"
+              @update:model-value="addSelectedFiles"
               ><template #prepend><q-icon name="add_photo_alternate" /></template
             ></q-file>
-            <div v-if="previews.length" class="row q-col-gutter-sm q-mt-md">
-              <div v-for="(preview, index) in previews" :key="preview" class="col-6 col-sm-3">
-                <q-img :src="preview" ratio="1" class="preview-image"
-                  ><q-btn
+            <div v-if="previews.length" class="q-mt-md mobile-photo-carousel">
+              <div class="row items-center justify-between q-mb-sm">
+                <div class="text-caption text-grey-7">
+                  Foto {{ activePhoto + 1 }} de {{ previews.length }}
+                </div>
+                <div class="row items-center q-gutter-xs">
+                  <q-btn
+                    v-if="previews.length > 1"
+                    flat
+                    round
+                    dense
+                    icon="chevron_left"
+                    color="dark"
+                    aria-label="Foto anterior"
+                    @click="movePhoto(-1)"
+                  />
+                  <q-btn
+                    v-if="previews.length > 1"
+                    flat
+                    round
+                    dense
+                    icon="chevron_right"
+                    color="dark"
+                    aria-label="Foto siguiente"
+                    @click="movePhoto(1)"
+                  />
+                </div>
+              </div>
+              <q-carousel
+                v-model="activePhoto"
+                animated
+                swipeable
+                control-color="white"
+                class="photo-carousel"
+              >
+                <q-carousel-slide
+                  v-for="(preview, index) in previews"
+                  :key="preview"
+                  :name="index"
+                  class="q-pa-none"
+                >
+                  <q-img :src="preview" fit="contain" class="carousel-photo" />
+                  <q-btn
+                    type="button"
                     round
                     dense
                     color="white"
                     text-color="negative"
                     icon="close"
                     size="sm"
-                    class="absolute-top-right q-ma-xs"
-                    aria-label="Quitar foto"
-                    @click="removeImage(index)"
-                /></q-img>
+                    class="absolute-top-right q-ma-sm photo-delete-button"
+                    :aria-label="`Quitar foto ${index + 1}`"
+                    @pointerdown.stop
+                    @touchstart.stop
+                    @click.stop.prevent="removeImage(index)"
+                  />
+                </q-carousel-slide>
+              </q-carousel>
+              <div v-if="previews.length > 1" class="row justify-center q-gutter-x-xs q-mt-sm">
+                <q-btn
+                  v-for="(preview, index) in previews"
+                  :key="`dot-${preview}`"
+                  round
+                  dense
+                  unelevated
+                  :color="activePhoto === index ? 'primary' : 'grey-4'"
+                  class="photo-dot"
+                  :aria-label="`Ver foto ${index + 1}`"
+                  @click="activePhoto = index"
+                />
+              </div>
+            </div>
+            <div v-if="previews.length" class="row q-col-gutter-sm q-mt-md desktop-photo-grid">
+              <div v-for="(preview, index) in previews" :key="preview" class="col-6 col-sm-3">
+                <div class="preview-image-wrap">
+                  <q-img :src="preview" ratio="1" class="preview-image" />
+                  <q-btn
+                    type="button"
+                    round
+                    dense
+                    color="white"
+                    text-color="negative"
+                    icon="close"
+                    size="sm"
+                    class="preview-delete-button"
+                    :aria-label="`Quitar foto ${index + 1}`"
+                    @pointerdown.stop
+                    @touchstart.stop
+                    @click.stop.prevent="removeImage(index)"
+                  />
+                </div>
               </div>
             </div> </q-card-section
         ></q-card>
@@ -160,10 +234,7 @@
       <div class="col-12 col-lg-5">
         <q-card flat bordered class="form-card sticky-card"
           ><q-card-section
-            ><div class="text-h6 text-weight-bold">Precio y contacto</div>
-            <div class="text-caption text-grey-7">
-              Los compradores podrán contactarte directamente.
-            </div></q-card-section
+            ><div class="text-h6 text-weight-bold">Precio y contacto</div> </q-card-section
           ><q-separator /><q-card-section class="q-gutter-y-md">
             <q-input
               v-model.number="form.price"
@@ -199,10 +270,6 @@
               ><template #prepend><q-icon name="phone" /></template
             ></q-input>
             <q-separator spaced />
-            <div class="row items-center text-caption text-grey-7">
-              <q-icon name="verified_user" color="positive" size="18px" class="q-mr-sm" />La
-              información del anuncio se guarda en Firebase.
-            </div>
             <div class="column q-gutter-sm q-mt-md">
               <q-btn
                 type="submit"
@@ -233,7 +300,9 @@ const router = useRouter()
 const $q = useQuasar()
 const formRef = ref(null)
 const files = ref([])
+const pickerFiles = ref([])
 const previews = ref([])
+const activePhoto = ref(0)
 const saving = ref(false)
 const form = reactive({
   title: '',
@@ -265,13 +334,54 @@ const required = (value) =>
   (value !== null && value !== undefined && String(value).trim() !== '') ||
   'Este campo es obligatorio'
 const positive = (value) => Number(value) > 0 || 'Ingresa un valor mayor que cero'
-function updatePreviews(selected) {
-  previews.value = (selected || []).map((file) => URL.createObjectURL(file))
+function addSelectedFiles(selected) {
+  const incoming = Array.isArray(selected) ? selected : selected ? [selected] : []
+  pickerFiles.value = []
+
+  const uniqueIncoming = incoming.filter(
+    (file) =>
+      !files.value.some(
+        (current) =>
+          current.name === file.name &&
+          current.size === file.size &&
+          current.lastModified === file.lastModified,
+      ),
+  )
+  const accepted = []
+  let totalSize = files.value.reduce((total, file) => total + file.size, 0)
+
+  for (const file of uniqueIncoming) {
+    if (files.value.length + accepted.length >= 4) {
+      $q.notify({ type: 'warning', message: 'Puedes agregar hasta 4 fotos.' })
+      break
+    }
+    if (file.size > 500000) {
+      $q.notify({ type: 'warning', message: `${file.name} supera el máximo de 500 KB.` })
+      continue
+    }
+    if (totalSize + file.size > 2000000) {
+      $q.notify({ type: 'warning', message: 'El tamaño total de las fotos no puede superar 2 MB.' })
+      break
+    }
+    accepted.push(file)
+    totalSize += file.size
+  }
+
+  files.value.push(...accepted)
+  previews.value.push(...accepted.map((file) => URL.createObjectURL(file)))
+  if (previews.value.length === accepted.length) activePhoto.value = 0
 }
 function removeImage(index) {
   URL.revokeObjectURL(previews.value[index])
   previews.value.splice(index, 1)
   files.value.splice(index, 1)
+  pickerFiles.value = []
+  activePhoto.value = Math.min(activePhoto.value, Math.max(previews.value.length - 1, 0))
+}
+function movePhoto(direction) {
+  if (!previews.value.length) return
+  activePhoto.value =
+    (activePhoto.value + direction + previews.value.length) % previews.value.length
 }
 async function submitForm() {
   const valid = await formRef.value.validate()
@@ -288,7 +398,9 @@ async function submitForm() {
     })
     previews.value.forEach((preview) => URL.revokeObjectURL(preview))
     previews.value = []
+    activePhoto.value = 0
     files.value = []
+    pickerFiles.value = []
     Object.assign(form, {
       title: '',
       brand: null,
@@ -354,10 +466,56 @@ async function submitForm() {
   border-radius: 12px;
 }
 
+.preview-image-wrap {
+  position: relative;
+}
+
+.preview-delete-button {
+  position: absolute;
+  z-index: 5;
+  top: 8px;
+  right: 8px;
+}
+
+.mobile-photo-carousel {
+  display: none;
+}
+
+.photo-carousel {
+  height: min(72vw, 360px);
+  min-height: 220px;
+  border-radius: 14px;
+  background: #171717;
+}
+
+.photo-delete-button {
+  z-index: 5;
+}
+
+.carousel-photo {
+  height: 100%;
+}
+
+.photo-dot {
+  width: 8px;
+  min-width: 8px;
+  height: 8px;
+  min-height: 8px;
+  padding: 0;
+}
+
 @media (max-width: 900px) {
   .page-wrap {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .mobile-photo-carousel {
+    display: block;
+  }
+
+  .desktop-photo-grid {
+    display: none;
   }
 }
 </style>
