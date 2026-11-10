@@ -31,6 +31,10 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
+      env: {
+        clientPrefix: 'QCLI_',
+      },
+
       target: {
         // browser: 'baseline-widely-available',
         // node: 'node22'

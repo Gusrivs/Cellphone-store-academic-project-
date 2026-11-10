@@ -2,16 +2,14 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAnalytics } from 'firebase/analytics'
 
-// TODO: Replace the following with your app's Firebase project configuration
-// See: https://support.google.com/firebase/answer/7015592
 const firebaseConfig = {
-  apiKey: 'AIzaSyB3FXxrvkKf-tFKUQ4O4-KQ6HOHpLdeJlA',
-  authDomain: 'fpi-33d4f.firebaseapp.com',
-  projectId: 'fpi-33d4f',
-  storageBucket: 'fpi-33d4f.firebasestorage.app',
-  messagingSenderId: '479977273051',
-  appId: '1:479977273051:web:2fc268e7697706587f3efe',
-  measurementId: 'G-L34YWHTZ3W',
+  apiKey: import.meta.env.QCLI_FIREBASE_API_KEY,
+  authDomain: import.meta.env.QCLI_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.QCLI_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.QCLI_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.QCLI_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.QCLI_FIREBASE_APP_ID,
+  measurementId: import.meta.env.QCLI_FIREBASE_MEASUREMENT_ID,
 }
 
 // Initialize Firebase

@@ -2,10 +2,10 @@ import { defineBoot } from '#q-app'
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://couchdbbackend.esaapp.com',
+  baseURL: import.meta.env.QCLI_COUCHDB_BASE_URL,
   auth: {
-    username: 'fpiimagenes',
-    password: 'OdioFirebaseCerroStorage2026uesMINERVA',
+    username: import.meta.env.QCLI_COUCHDB_USERNAME,
+    password: import.meta.env.QCLI_COUCHDB_PASSWORD,
   },
 })
 

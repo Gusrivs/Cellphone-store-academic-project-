@@ -93,11 +93,15 @@ async function setImagen() {
     const url = `${coleccionCouchDB}${encodeURIComponent(idDocumento)}/${encodeURIComponent(attname)}`
 
     try {
-      const response = await api.put(currentRev ? `${url}?rev=${encodeURIComponent(currentRev)}` : url, file, {
-        headers: {
-          'Content-Type': file.type,
+      const response = await api.put(
+        currentRev ? `${url}?rev=${encodeURIComponent(currentRev)}` : url,
+        file,
+        {
+          headers: {
+            'Content-Type': file.type,
+          },
         },
-      })
+      )
       currentRev = response.data.rev
       console.log(`Imagen ${i + 1} subida con éxito. Nueva revisión:`, currentRev)
     } catch (error) {
