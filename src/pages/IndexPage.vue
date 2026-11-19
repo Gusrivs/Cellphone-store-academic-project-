@@ -1,36 +1,5 @@
 <template>
   <q-page class="page-wrap q-px-md q-px-lg-xl q-py-lg">
-    <!-- <section class="hero-panel q-pa-lg q-pa-md-xl q-mb-lg">
-      <div class="row items-center">
-        <div class="col-12 col-md-7">
-          <q-badge color="dark" text-color="white" rounded class="q-mb-md q-px-sm q-py-xs"
-            >mercado ues</q-badge
-          >
-          <div class="text-h3 text-weight-bolder hero-title">
-            Bienvenido viajero,<br class="gt-xs" />
-            ¿Busca celular?
-          </div>
-          <div class="text-subtitle1 q-mt-md text-grey-8">
-            El que busca encuentra, dele con confianza, tambien puede vender!
-          </div>
-          <q-btn
-            unelevated
-            rounded
-            color="dark"
-            text-color="white"
-            no-caps
-            label="Explorar celulares"
-            icon-right="arrow_downward"
-            class="q-mt-lg"
-            @click="scrollToCatalog"
-          />
-        </div>
-        <div class="col-12 col-md-5 gt-sm hero-art">
-          <q-icon name="android" class="hero-phone" />
-        </div>
-      </div>
-    </section> -->
-
     <div id="catalog" class="row items-center q-mb-md">
       <div class="col">
         <div class="text-h5 text-weight-bold">Celulares disponibles</div>
@@ -142,17 +111,7 @@
                     <q-icon name="smartphone" size="64px" /></div></template></q-img
               ><q-badge floating color="white" text-color="dark" class="condition-badge">{{
                 product.condition
-              }}</q-badge
-              ><q-btn
-                round
-                dense
-                color="white"
-                text-color="dark"
-                icon="favorite_border"
-                class="favorite-btn"
-                aria-label="Guardar favorito"
-                @click.stop="favorite(product.title)"
-              />
+              }}</q-badge>
             </div>
             <q-card-section class="q-px-md q-pt-md q-pb-sm"
               ><div class="text-h6 text-weight-bolder text-primary">{{ money(product.price) }}</div>
@@ -251,8 +210,9 @@
             label="Limpiar filtros"
             class="full-width q-mt-xs"
             @click="resetFilters"
-          /> </q-card-section></q-card
-    ></q-dialog>
+          /> </q-card-section
+      ></q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -273,7 +233,7 @@ onMounted(async () => {
     $q.notify({
       type: 'negative',
       message: 'No se pudieron actualizar los anuncios',
-      caption: 'Se muestran los anuncios de ejemplo.',
+      caption: 'Intenta de nuevo más tarde.',
     })
   }
 })
@@ -336,23 +296,17 @@ function resetFilters() {
 function openProduct(id) {
   router.push(`/producto/${id}`)
 }
-function favorite(title) {
-  $q.notify({
-    message: `${title} guardado en favoritos`,
-    icon: 'favorite',
-    color: 'dark',
-    position: 'top',
-  })
-}
-//function scrollToCatalog() {
-//  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })
-//}
 </script>
 
 <style lang="scss" scoped>
+body {
+  background: $dark-page;
+}
+
 .page-wrap {
   max-width: 1500px;
   margin: 0 auto;
+  background-color: transparent;
 }
 
 .hero-panel {

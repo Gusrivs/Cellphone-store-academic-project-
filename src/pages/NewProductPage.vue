@@ -282,7 +282,14 @@
                 label="Publicar anuncio"
                 icon-right="arrow_forward"
                 :loading="saving"
-              /><q-btn flat color="grey-8" rounded no-caps label="Cancelar" to="/" />
+              /><q-btn
+                flat
+                color="white"
+                style="border-radius: 8px; background-color: red; font-weight: bold"
+                no-caps
+                label="Cancelar"
+                to="/"
+              />
             </div> </q-card-section
         ></q-card>
       </div>
@@ -388,14 +395,17 @@ async function submitForm() {
   if (!valid) return
   saving.value = true
   try {
-    const result = await addProduct({
-      ...form,
-      price: Number(form.price),
-      screen: Number(form.screen),
-      storage: Number(form.storage),
-      ram: Number(form.ram),
-      createdAt: new Date().toISOString().slice(0, 10),
-    }, files.value)
+    const result = await addProduct(
+      {
+        ...form,
+        price: Number(form.price),
+        screen: Number(form.screen),
+        storage: Number(form.storage),
+        ram: Number(form.ram),
+        createdAt: new Date().toISOString().slice(0, 10),
+      },
+      files.value,
+    )
     previews.value.forEach((preview) => URL.revokeObjectURL(preview))
     previews.value = []
     activePhoto.value = 0

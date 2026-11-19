@@ -161,7 +161,8 @@ function comprar() {
 
 <style lang="scss" scoped>
 .app-shell {
-  background: #faf9f6;
+  background-image: url('../assets/blanc.jpg');
+  background-size: cover;
 }
 
 .app-header {

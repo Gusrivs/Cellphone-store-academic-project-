@@ -7,27 +7,37 @@
       /></q-breadcrumbs>
       <div class="row q-col-gutter-xl">
         <div class="col-12 col-lg-7">
-          <q-card flat bordered class="gallery-card"
-            ><q-img :src="activeImage" ratio="1.25" class="detail-image"
-              ><template #error
-                ><div class="absolute-full flex flex-center placeholder-phone">
-                  <q-icon name="smartphone" size="96px" /></div></template
-              ><q-btn
+          <q-card flat bordered class="gallery-card">
+            <div class="gallery-frame">
+              <q-img
+                :src="activeImage"
+                ratio="1.25"
+                class="detail-image"
+                @touchstart="startSwipe"
+                @touchend="endSwipe"
+                ><template #error
+                  ><div class="absolute-full flex flex-center placeholder-phone">
+                    <q-icon name="smartphone" size="96px" /></div></template
+              ></q-img>
+              <q-btn
                 round
                 color="white"
                 text-color="dark"
                 icon="chevron_left"
                 class="gallery-nav gallery-prev"
                 aria-label="Foto anterior"
-                @click="moveImage(-1)" /><q-btn
+                @click="moveImage(-1)"
+              /><q-btn
                 round
                 color="white"
                 text-color="dark"
                 icon="chevron_right"
                 class="gallery-nav gallery-next"
                 aria-label="Foto siguiente"
-                @click="moveImage(1)" /></q-img
-          ></q-card>
+                @click="moveImage(1)"
+              />
+            </div>
+          </q-card>
           <div class="row q-gutter-sm q-mt-sm" v-if="images.length > 1">
             <q-btn
               v-for="(image, index) in images"
@@ -60,13 +70,6 @@
               label="Agregar al carrito"
               class="col"
               @click="addToCart(product.id)"
-            /><q-btn
-              outline
-              rounded
-              no-caps
-              icon="call"
-              label="Llamar"
-              :href="`tel:${product.phone}`"
             />
           </div>
           <q-card flat bordered class="seller-card q-mt-lg"
@@ -79,11 +82,18 @@
               <q-space /><q-btn
                 flat
                 round
-                color="positive"
-                icon="chat"
-                aria-label="Contactar"
+                class="whatsapp-btn"
+                aria-label="Contactar por WhatsApp"
                 :href="`https://wa.me/503${product.phone.replaceAll('-', '')}`"
-                target="_blank" /></q-card-section
+                target="_blank"
+                rel="noopener noreferrer"
+                ><img
+                  src="@/assets/whatsapp.png"
+                  alt=""
+                  class="whatsapp-icon"
+                  width="32"
+                  height="32"
+              /></q-btn></q-card-section
             ><q-separator /><q-card-section class="row items-center"
               ><q-icon name="phone" color="primary" /><a
                 class="text-body2 text-dark q-ml-sm"
@@ -140,7 +150,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { addToCart as addItemToCart, getProduct, loadProducts } from '@/stores/products'
@@ -156,6 +166,7 @@ onMounted(() => {
   }
 })
 const activeIndex = ref(0)
+let touchStartX = null
 const images = computed(() =>
   product.value
     ? product.value.images?.length
@@ -164,6 +175,12 @@ const images = computed(() =>
     : [],
 )
 const activeImage = computed(() => images.value[activeIndex.value] || product.value?.image || '')
+watch(
+  () => route.params.id,
+  () => {
+    activeIndex.value = 0
+  },
+)
 const specs = computed(() =>
   product.value
     ? [
@@ -182,7 +199,19 @@ function money(value) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
 }
 function moveImage(direction) {
-  activeIndex.value = (activeIndex.value + direction + images.value.length) % images.value.length
+  const imageCount = images.value.length
+  if (imageCount < 2) return
+  activeIndex.value = (activeIndex.value + direction + imageCount) % imageCount
+}
+function startSwipe(event) {
+  touchStartX = event.changedTouches[0]?.clientX ?? null
+}
+function endSwipe(event) {
+  if (touchStartX === null) return
+  const deltaX = event.changedTouches[0].clientX - touchStartX
+  touchStartX = null
+  if (Math.abs(deltaX) < 40) return
+  moveImage(deltaX < 0 ? 1 : -1)
 }
 function addToCart(id) {
   addItemToCart(id)
@@ -217,10 +246,17 @@ function addToCart(id) {
   background: $dark-page;
 }
 
+.gallery-frame {
+  position: relative;
+  isolation: isolate;
+}
+
 .gallery-nav {
   position: absolute;
+  z-index: 5;
   top: 50%;
   transform: translateY(-50%);
+  pointer-events: auto;
 }
 
 .gallery-prev {
@@ -248,6 +284,13 @@ function addToCart(id) {
 
 .seller-card {
   overflow: hidden;
+}
+
+.whatsapp-icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .seller-card :deep(a) {
