@@ -55,10 +55,19 @@
               dense
             />
             <q-separator spaced />
-            <div class="filter-label q-mb-sm">Precio máximo</div>
+            <div class="filter-label q-mb-sm">Precio mínimo: ${{ filters.minPrice }}</div>
+            <q-slider
+              v-model="filters.minPrice"
+              :min="50"
+              :max="filters.maxPrice"
+              :step="10"
+              label
+              color="primary"
+            />
+            <div class="filter-label q-mb-sm q-mt-md">Precio máximo: ${{ filters.maxPrice }}</div>
             <q-slider
               v-model="filters.maxPrice"
-              :min="50"
+              :min="filters.minPrice"
               :max="1500"
               :step="10"
               label
@@ -66,7 +75,7 @@
               :label-value="`$${filters.maxPrice}`"
             />
             <div class="row justify-between text-caption text-grey-7">
-              <span>$50</span><span>$1,500</span>
+              <span>$0</span><span>$1,500</span>
             </div>
           </q-card-section></q-card
         >
@@ -185,10 +194,19 @@
             color="primary"
             dense
           /><q-separator spaced />
-          <div class="filter-label q-mb-sm">Precio máximo: ${{ filters.maxPrice }}</div>
+          <div class="filter-label q-mb-sm">Precio mínimo: ${{ filters.minPrice }}</div>
+          <q-slider
+            v-model="filters.minPrice"
+            :min="50"
+            :max="filters.maxPrice"
+            :step="10"
+            label
+            color="primary"
+          />
+          <div class="filter-label q-mb-sm q-mt-md">Precio máximo: ${{ filters.maxPrice }}</div>
           <q-slider
             v-model="filters.maxPrice"
-            :min="50"
+            :min="filters.minPrice"
             :max="1500"
             :step="10"
             label
@@ -238,7 +256,7 @@ onMounted(async () => {
   }
 })
 const filtersOpen = ref(false)
-const filters = reactive({ condition: [], brand: [], system: [], maxPrice: 1500 })
+const filters = reactive({ condition: [], brand: [], system: [], minPrice: 0, maxPrice: 1500 })
 const sortBy = ref('newest')
 const perPage = ref(8)
 const currentPage = ref(1)
@@ -261,6 +279,7 @@ const filteredProducts = computed(() => {
       `${product.title} ${product.brand} ${product.model}`.toLocaleLowerCase('es').includes(query)
     return (
       matchesQuery &&
+      product.price >= filters.minPrice &&
       product.price <= filters.maxPrice &&
       (!filters.condition.length || filters.condition.includes(product.condition)) &&
       (!filters.brand.length || filters.brand.includes(product.brand)) &&
@@ -291,6 +310,7 @@ function resetFilters() {
   filters.condition = []
   filters.brand = []
   filters.system = []
+  filters.minPrice = 50
   filters.maxPrice = 1500
 }
 function openProduct(id) {
