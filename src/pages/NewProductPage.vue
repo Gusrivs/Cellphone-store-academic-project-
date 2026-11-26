@@ -55,6 +55,7 @@
                   v-model.number="form.screen"
                   outlined
                   type="number"
+                  step="0.1"
                   label="Pantalla (pulgadas) *"
                   suffix="pulg."
                   min="3"

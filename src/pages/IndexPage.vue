@@ -58,7 +58,7 @@
             <div class="filter-label q-mb-sm">Precio mínimo: ${{ filters.minPrice }}</div>
             <q-slider
               v-model="filters.minPrice"
-              :min="50"
+              :min="0"
               :max="filters.maxPrice"
               :step="10"
               label
@@ -197,7 +197,7 @@
           <div class="filter-label q-mb-sm">Precio mínimo: ${{ filters.minPrice }}</div>
           <q-slider
             v-model="filters.minPrice"
-            :min="50"
+            :min="0"
             :max="filters.maxPrice"
             :step="10"
             label
@@ -310,7 +310,7 @@ function resetFilters() {
   filters.condition = []
   filters.brand = []
   filters.system = []
-  filters.minPrice = 50
+  filters.minPrice = 0
   filters.maxPrice = 1500
 }
 function openProduct(id) {
