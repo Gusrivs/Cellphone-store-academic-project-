@@ -9,6 +9,8 @@ const $q = useQuasar()
 
 const filesImages = ref(null)
 const couchStatus = ref('')
+const uploadingImages = ref(false)
+const uploadedImages = ref([])
 
 async function probarCouchDB() {
   couchStatus.value = 'Conectando…'
@@ -71,9 +73,9 @@ async function leer() {
   const querySnapshot = await getDocs(collection(db, 'users'))
   users.value = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 }
-const anuncio = ref() //hagamos de caso que este es el anuncio que se crea en firebase
 async function setImagen() {
-  if (!filesImages.value || filesImages.value.length === 0) {
+  const files = Array.from(filesImages.value || [])
+  if (files.length === 0) {
     $q.notify({
       type: 'negative',
       message: 'No se han seleccionado imágenes para subir.',
@@ -81,34 +83,51 @@ async function setImagen() {
     return
   }
 
-  const coleccionCouchDB = '/imagenesfpi/'
-  const idDocumento = anuncio.value[0].id // usamos el primer anuncio
-  console.log('Colección CouchDB:', idDocumento)
-  let currentRev
+  const databasePath = '/'
+  uploadingImages.value = true
+  uploadedImages.value = []
+  couchStatus.value = 'Creando documento de prueba…'
 
-  for (let i = 0; i < filesImages.value.length; i++) {
-    const file = filesImages.value[i]
-    console.log(`Subiendo imagen ${i + 1}:`, file.name)
-    const attname = `archivo${i}.jpg`
-    const url = `${coleccionCouchDB}${encodeURIComponent(idDocumento)}/${encodeURIComponent(attname)}`
+  try {
+    // CouchDB necesita que exista el documento padre antes de adjuntar archivos.
+    const docResponse = await api.post(databasePath, {
+      type: 'prueba-imagenes',
+      createdAt: new Date().toISOString(),
+    })
+    const idDocumento = docResponse.data.id
+    let currentRev = docResponse.data.rev
 
-    try {
+    for (const [index, file] of files.entries()) {
+      const extension = file.name.includes('.') ? `.${file.name.split('.').pop().toLowerCase()}` : ''
+      const attname = `imagen-${index + 1}${extension}`
+      const url = `${databasePath}${encodeURIComponent(idDocumento)}/${encodeURIComponent(attname)}`
+      couchStatus.value = `Subiendo imagen ${index + 1} de ${files.length}…`
       const response = await api.put(
-        currentRev ? `${url}?rev=${encodeURIComponent(currentRev)}` : url,
+        `${url}?rev=${encodeURIComponent(currentRev)}`,
         file,
         {
           headers: {
-            'Content-Type': file.type,
+            'Content-Type': file.type || 'application/octet-stream',
           },
         },
       )
       currentRev = response.data.rev
-      console.log(`Imagen ${i + 1} subida con éxito. Nueva revisión:`, currentRev)
-    } catch (error) {
-      console.error(`Fallo al subir la imagen ${i + 1}:`, error.response?.data || error.message)
-      break
+      uploadedImages.value.push({
+        name: file.name,
+        url: `${api.defaults.baseURL}${url}`,
+      })
     }
-  } //FIN DEL FOR (espero este bien
+
+    couchStatus.value = `${uploadedImages.value.length} imagen(es) guardada(s) en CouchDB. Documento: ${idDocumento}`
+    $q.notify({ type: 'positive', message: 'Imagen(es) guardada(s) en CouchDB.' })
+  } catch (error) {
+    const detail = error.response?.data?.reason || error.response?.data?.error || error.message
+    couchStatus.value = `Falló la subida: ${detail}`
+    console.error('Fallo al guardar imágenes en CouchDB:', error.response?.data || error)
+    $q.notify({ type: 'negative', message: 'No se pudieron guardar las imágenes.', caption: detail })
+  } finally {
+    uploadingImages.value = false
+  }
 }
 </script>
 
@@ -145,10 +164,15 @@ async function setImagen() {
         @rejected="onRejected"
       />
       <br />
-      <q-btn @click="setImagen" variant="primary">Subir Imagenes</q-btn>
+      <q-btn @click="setImagen" color="primary" label="Subir imágenes" :loading="uploadingImages" :disable="uploadingImages" />
       <q-btn class="q-ml-sm" @click="probarCouchDB" color="info" label="Probar conexión CouchDB" />
       <div v-if="couchStatus" class="q-mt-sm" role="status">{{ couchStatus }}</div>
-      <q-btn @click="getImagen" variant="success">Obtener Imagenes</q-btn>
+      <div v-if="uploadedImages.length" class="row q-gutter-md q-mt-md">
+        <div v-for="image in uploadedImages" :key="image.url" class="column items-center">
+          <q-img :src="image.url" :alt="image.name" width="180px" height="140px" fit="contain" />
+          <span>{{ image.name }}</span>
+        </div>
+      </div>
       <br />
       <span>Que mas querias bro?</span>
     </div>

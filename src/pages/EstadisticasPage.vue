@@ -39,17 +39,14 @@
       <div class="col-12">
         <q-card flat bordered class="stats-panel full-height"
           ><q-card-section
-            ><div class="text-h6 text-weight-bold">Rango de precios</div>
-            <div class="text-caption text-grey-7">
-              Precio promedio de los anuncios
-            </div></q-card-section
-          ><q-separator /><q-card-section
-            ><div class="price-highlight text-center q-pa-lg">
-              <q-icon name="sell" size="32px" color="primary" />
-              <div class="text-overline text-grey-7 q-mt-sm">Precio promedio</div>
-              <div class="text-h2 text-weight-bolder">{{ money(averagePrice) }}</div>
-            </div>
+            ><div class="text-h6 text-weight-bold">Rango de precios</div> </q-card-section
+          ><q-separator /><q-card-section>
             <div class="price-range q-mt-md">
+              <div class="price-endpoint">
+                <span class="text-caption text-grey-7">Precio Promedio</span
+                ><strong>{{ money(averagePrice) }}</strong>
+              </div>
+
               <div class="price-endpoint">
                 <span class="text-caption text-grey-7">Más económico</span
                 ><strong>{{ money(minPrice) }}</strong>

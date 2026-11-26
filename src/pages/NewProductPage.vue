@@ -109,7 +109,7 @@
               maxlength="700"
               counter
               hint="Incluye detalles del estado, accesorios y cualquier observación."
-              :rules="[required, (v) => v?.length >= 20 || 'Escribe al menos 20 caracteres']"
+              :rules="[required, (v) => v?.length >= 1 || 'No puedes dejar la descripción vacía']"
             /> </q-card-section
         ></q-card>
 
